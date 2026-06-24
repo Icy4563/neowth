@@ -1,0 +1,987 @@
+<ForecastWidget>:
+    size_hint_x: None
+    width: dp(160)
+    size_hint_y: 1
+    padding: dp(4)
+    style: "outlined"
+    spacing: dp(5)
+
+    MDDivider:
+        orientation: "vertical"
+        size_hint: None, 0.9
+        pos_hint: {'center_x': 0.5,'center_y': .5}
+    
+    MDBoxLayout:
+        orientation: 'vertical'
+        spacing: dp(2.5)
+
+        MDLabel:
+            text: root.time
+            halign: 'center'
+            height: self.texture_size[1]
+
+        MDDivider:
+            orientation: "horizontal"
+            size_hint: None, None
+            width: dp(50)
+            pos_hint: {'center_x': 0.5,'center_y': 0.5}
+
+        Label:
+            text: root.icon
+            halign: 'center'
+            height: self.texture_size[1]
+            color: app.theme_cls.onSurfaceVariantColor
+            font_name: "Material-Icons"
+            adaptive_width: True
+            font_size: dp(26.5)
+
+        MDLabel:
+            text: root.rain
+            halign: 'center'
+            height: self.texture_size[1]
+
+        MDLabel:
+            text: root.temperature
+            halign: 'center'
+            height: self.texture_size[1]
+            markup: True
+
+<CityListWidget>:
+    size_hint_y: None
+    height: dp(120)   # Adjust as needed
+    size_hint_x: 1
+    padding: dp(4)
+    style: "outlined"
+    spacing: dp(5)
+
+    MDBoxLayout:
+        orientation: 'horizontal'
+        spacing: dp(5)
+        padding: dp(4)
+
+        MDDivider:
+            orientation: "vertical"
+            size_hint: None, 0.9
+            width: dp(1)
+            pos_hint: {'center_y': 0.5}
+
+        MDBoxLayout:
+            orientation: 'vertical'
+            spacing: dp(2.5)
+
+            MDLabel:
+                text: root.city_name
+                halign: 'left'
+                font_style: "ubuntu_display"
+                role: "small"
+                color: app.theme_cls.onSurfaceVariantColor
+                # height: self.texture_size[1]
+                markup: True
+                on_ref_press: app.city_has_been_selected(self.text)
+
+        MDDivider:
+            orientation: "horizontal"
+            size_hint: None, 0.365
+            helign: "left"
+            # adaptive_width: True
+
+<RecycleViewBoxThing>:
+    orientation: 'vertical'
+    padding: dp(12)
+    spacing: dp(5)
+
+    HorizontalRecycleView:
+        id: recycleviewpanel
+        viewclass: 'ForecastWidget'
+        scroll_type: ['bars', 'content']
+        bar_width: dp(0)
+        do_scroll_x: True
+        do_scroll_y: False
+
+        RecycleBoxLayout:
+            default_size: None, None
+            default_size_hint: None, 1
+            size_hint_y: 1
+            size_hint_x: None
+            orientation: 'horizontal'
+            spacing: dp(5)
+            padding: dp(10), dp(0), dp(10), 0
+            minimum_width: self.width
+
+<AnotherRecycleBoxThing>:
+    orientation: 'vertical'
+    padding: dp(12)
+    spacing: dp(5)
+
+    VerticalRecycleView:
+        id: inner_recycle_view
+        viewclass: 'CityListWidget'
+        scroll_type: ['bars', 'content']
+        bar_width: dp(0)
+        do_scroll_y: True
+        do_scroll_x: False
+
+        RecycleBoxLayout:
+            default_size: None, dp(120)   # same as ForecastWidget height
+            default_size_hint: 1, None
+            size_hint_y: None
+            size_hint_x: 1
+            orientation: 'vertical'
+            spacing: dp(5)
+            padding: dp(0), dp(10), dp(0), dp(10)
+            height: self.minimum_height
+
+<RootElement>:
+    orientation: "vertical"
+
+    ScreenManager:
+        id: sm
+        CurrentWeatherScreen:
+        ForecastWeatherScreen:
+        SettingsScreen:
+        #ThemeSelectScreen:
+        #ColorSelectScreen:
+        CitySearchScreen:
+
+    MDNavigationBar:
+        on_switch_tabs: app.navBarHandler(*args)
+
+        MDNavigationItem:
+
+            MDNavigationItemIcon:
+                icon: "clock"
+            
+            MDNavigationItemLabel:
+                text: "Current"
+
+        MDNavigationItem:
+
+            MDNavigationItemIcon:
+                icon: "calendar"
+
+            MDNavigationItemLabel:
+                text: "Daily"
+
+        MDNavigationItem:
+
+            MDNavigationItemIcon:
+                icon: "menu"
+
+            MDNavigationItemLabel:
+                text: "Settings"
+
+<CitySearchScreen@MDScreen>:
+    name: 'CitySearchScreen'
+    md_bg_color: app.theme_cls.backgroundColor
+
+    MDBoxLayout:
+        orientation: "vertical"
+        spacing: dp(7)
+
+        MDScrollView:
+            do_scroll_x: False
+            do_scroll_y: True
+            #full screen layout
+            MDBoxLayout:
+                orientation: "vertical"
+                spacing: dp(25)
+                padding: dp(15)
+                height: self.minimum_height
+                size_hint_y: None
+
+                MDTextField:
+                    size_hint: 0.7, None
+                    height: dp(55)
+                    mode: "filled"
+                    pos_hint: {'center_x': 0.5}
+                    on_focus: if not self.focus: app.show_cities(search_argument = self.text)
+
+                    MDTextFieldLeadingIcon:
+                        icon: "magnify"
+
+                    MDTextFieldHintText:
+                        text: "Search for a city"
+
+                    MDTextFieldHelperText:
+                        text: "The offline city database is provided by simplemaps"
+                        mode: "persistent"
+
+                    MDTextFieldTrailingIcon:
+                        icon: "pin"
+
+
+        AnotherRecycleBoxThing:
+            size_hint_y: 2
+            id: recycleviewpaneltwo
+                
+                
+
+<SettingsScreen@MDScreen>:
+    name: 'SettingsScreen'
+    md_bg_color: app.theme_cls.backgroundColor
+
+    MDScrollView:
+        do_scroll_x: False
+        do_scroll_y: True
+
+        #full screen layout
+        MDBoxLayout:
+            orientation: "vertical"
+            spacing: dp(35)
+            padding: dp(5)
+            height: self.minimum_height
+            size_hint_y: None
+
+            MDBoxLayout:
+                orientation: "horizontal"
+                spacing: dp(35)
+                padding: dp(7), dp(7), dp(50), dp(7)
+                size_hint: 0.3, None
+                height: dp(40)
+                pos_hint: {'center_x': 0.5}
+                adaptive_width: True
+                width: self.minimum_width
+
+                MDLabel:
+                    text: "Choose your theme"
+                    font_style: "Display"
+                    role: "small"
+                    adaptive_width: True
+                    width: self.texture_size[0]
+                    height: self.texture_size[1]
+                    color: app.theme_cls.onSurfaceVariantColor
+                    size_hint_y: None
+                    pos_hint: {'center_y': 0.5}
+
+                Label:
+                    font_name: "Material-Icons"
+                    text: '\ue891'
+                    font_size: dp(35)
+                    color: app.theme_cls.onSurfaceVariantColor
+                    size_hint_y: None
+                    adaptive_width: True
+                    width: self.texture_size[0]
+                    height: self.texture_size[1]
+                    pos_hint: {'center_y': 0.5}
+
+            MDBoxLayout:
+                orientation: "horizontal"
+                spacing: dp(35)
+                padding: dp(50), dp(5), dp(50), dp(5)
+                size_hint: 0.3, None
+                height: dp(40)
+                pos_hint: {'center_x': 0.5}
+
+                MDIconButton:
+                    icon: "moon-waning-crescent"
+                    style: "standard"
+                    color: app.theme_cls.onSurfaceVariantColor
+                    theme_font_size: "Custom"
+                    font_size: dp(38)
+                    pos_hint: {'center_y': 0.5}
+                    valign: "center"
+                    on_release: app.theme_handler(self)
+
+                MDDivider:
+                    orientation: "vertical"
+                    height: dp(44)
+                    pos_hint: {'center_y': 0.5}
+                    valign: "center"
+
+                MDIconButton:
+                    icon: "white-balance-sunny"
+                    style: "standard"
+                    color: app.theme_cls.onSurfaceVariantColor
+                    theme_font_size: "Custom"
+                    font_size: dp(38)
+                    pos_hint: {'center_y': 0.5}
+                    valign: "center"
+                    on_release: app.theme_handler(self)
+
+            MDDivider:
+                orientation: "horizontal"
+                width: dp(60)
+                size_hint: 0.6, None
+                pos_hint: {'center_x': 0.5}
+
+            MDBoxLayout:
+                orientation: "vertical"
+                spacing: dp(35)
+                padding: dp(0), dp(0), dp(0), dp(0)
+                size_hint: 0.3, None
+                height: dp(100)
+                pos_hint: {'center_x': 0.5}
+                adaptive_width: True
+                width: self.minimum_width
+                adaptive_height: True
+                height: self.minimum_height
+
+                MDLabel:
+                    text: "Display weather graphic\n(may improve performance if off)"
+                    font_style: "Display"
+                    role: "small"
+                    adaptive_width: True
+                    width: self.texture_size[0]
+                    halign: "center"
+                    height: self.texture_size[1]
+                    color: app.theme_cls.onSurfaceVariantColor
+                    size_hint_y: None
+                    pos_hint: {'center_x': 0.5}
+
+                MDLabel:
+                    text: "takes effect after closing and reopening the app"
+                    font_style: "Title"
+                    role: "medium"
+                    adaptive_width: True
+                    width: self.texture_size[0]
+                    halign: "center"
+                    height: self.texture_size[1]
+                    color: app.theme_cls.onSurfaceVariantColor
+                    size_hint_y: None
+                    pos_hint: {'center_x': 0.5}
+
+                MDSegmentedButton:
+
+                    MDSegmentedButtonItem:
+                        # value: "on"
+                        text: "on"
+                        on_active: app.graphics_handler(self, active=self.active)
+                        MDSegmentButtonLabel:
+                            text: "On"
+
+                    MDSegmentedButtonItem:
+                        text: "off"
+                        on_active: app.graphics_handler(self, active=self.active)
+                        MDSegmentButtonLabel:
+                            text: "Off"
+                MDLabel:
+                    text: "Weather data is provided by MET Norway"
+                    role: "medium"
+                    font_style: "Title"
+                    halign: "center"
+                    adaptive_width: True
+                    width: self.texture_size[0]
+                    pos_hint: {'center_x': 0.5}
+
+            MDDivider:
+                orientation: "horizontal"
+                width: dp(60)
+                size_hint: 0.6, None
+                pos_hint: {'center_x': 0.5}
+
+
+                
+<ForecastWeatherScreen@MDScreen>:
+    name: 'ForecastWeatherScreen'
+    md_bg_color: app.theme_cls.backgroundColor
+    on_enter: app.get_weather_screen_stuff(which_screen='forecast', caller='kv')
+
+    MDFloatLayout:
+
+        FitImage:
+            source: "Graphics/sunny.png"
+            size_hint: 0.8, None
+            height: dp(435)
+            opacity: 0.3
+            pos_hint: {'center_x': 0.18,'center_y': 0.87}
+            allow_stretch: True
+            keep_ratio: True
+            id: background_image2
+
+    MDScrollView:
+        do_scroll_x: False
+        do_scroll_y: True
+
+        #full screen layout
+        MDBoxLayout:
+            orientation: "vertical"
+            spacing: dp(65)
+            padding: dp(5)
+            height: self.minimum_height
+            size_hint_y: None
+
+            #current icon and temperature
+            MDBoxLayout:
+                orientation: "horizontal"
+                size_hint: None, None
+                halign: "center"
+                height: dp(20)
+                spacing: dp(15)
+                width: dp(125)
+                halign: "left"
+                padding: dp(18), dp(0), dp(0), dp(1)
+                id: card1
+
+                Label:
+                    font_name: "Material-Icons"
+                    text: "\ue430" #wb_sunny
+                    font_size: dp(25)
+                    color: app.theme_cls.onSurfaceColor
+                    adaptive_width: True
+                    id: current_icon
+
+
+                MDLabel:
+                    text: ". . ."
+                    font_style: "ubuntu_title"
+                    role: "large"
+                    color: app.theme_cls.onSurfaceColor
+                    adaptive_width: True
+                    id: temp_current
+
+                MDDivider:
+                    orientation: 'vertical'
+                    height: dp(20)
+                    valign: 'center'
+
+                MDLabel:
+                    text: ". . ."
+                    font_style: "ubuntu_title"
+                    role: "large"
+                    color: app.theme_cls.onSurfaceColor
+                    adaptive_width: True
+                    id: sync_time
+
+# =============================================================================================
+# =============================================================================================
+            MDBoxLayout:
+                orientation: "vertical"
+                size_hint: 1, None
+                adaptive_height: True
+                height: self.minimum_height
+                spacing: dp(18)
+                padding: dp(18), dp(0), dp(0), dp(1)
+
+                MDCard:
+                    style: "filled"
+                    size_hint: (0.9, None) if root.width >= dp(465) else (0.97, None)
+                    height: dp(140)
+                    radius: dp(22)
+                    pos_hint: {'center_x': 0.5}
+                    id: card0
+
+                    MDBoxLayout:
+                        orientation: 'horizontal'
+                        padding: dp(18)
+                        spacing: dp(1)
+                        MDLabel:
+                            text: ". . ."
+                            font_style: "Title"
+                            role: "large"
+                            adaptive_width: True
+                            width: self.texture_size[0]
+                            id: tmr_date
+                        MDDivider:
+                            orientation: "vertical"
+                            height: dp(145)
+                            valign: "center"
+                        RecycleViewBoxThing:
+                            id: tmr_forecast
+
+                MDCard:
+                    style: "filled"
+                    size_hint: (0.9, None) if root.width >= dp(465) else (0.97, None)
+                    height: dp(140)
+                    radius: dp(22)
+                    pos_hint: {'center_x': 0.5}
+                    id: card1
+
+                    MDBoxLayout:
+                        orientation: 'horizontal'
+                        padding: dp(18)
+                        spacing: dp(1)
+                        MDLabel:
+                            text: ". . ."
+                            font_style: "Title"
+                            role: "large"
+                            adaptive_width: True
+                            width: self.texture_size[0]
+                            id: tmr_one_date
+                        MDDivider:
+                            orientation: "vertical"
+                            height: dp(145)
+                            valign: "center"
+
+                        RecycleViewBoxThing:
+                            id: tmr_one_forecast
+
+
+                MDCard:
+                    style: "filled"
+                    size_hint: (0.9, None) if root.width >= dp(465) else (0.97, None)
+                    height: dp(140)
+                    radius: dp(22)
+                    pos_hint: {'center_x': 0.5}
+                    id: card2
+
+                    MDBoxLayout:
+                        orientation: 'horizontal'
+                        padding: dp(8)
+                        spacing: dp(1)
+                        MDLabel:
+                            text: ". . ."
+                            font_style: "Title"
+                            role: "large"
+                            adaptive_width: True
+                            width: self.texture_size[0]
+                            id: tmr_two_date
+                        MDDivider:
+                            orientation: "vertical"
+                            height: dp(145)
+                            valign: "center"
+
+                        RecycleViewBoxThing:
+                            id: tmr_two_forecast
+
+
+                MDCard:
+                    style: "filled"
+                    size_hint: (0.9, None) if root.width >= dp(465) else (0.97, None)
+                    height: dp(140)
+                    radius: dp(22)
+                    pos_hint: {'center_x': 0.5}
+                    id: card3
+
+                    MDBoxLayout:
+                        orientation: 'horizontal'
+                        padding: dp(8)
+                        spacing: dp(1)
+                        MDLabel:
+                            text: ". . ."
+                            font_style: "Title"
+                            role: "large"
+                            adaptive_width: True
+                            width: self.texture_size[0]
+                            id: tmr_three_date
+                        MDDivider:
+                            orientation: "vertical"
+                            height: dp(145)
+                            valign: "center"
+
+                        RecycleViewBoxThing:
+                            id: tmr_three_forecast
+
+
+                MDCard:
+                    style: "filled"
+                    size_hint: (0.9, None) if root.width >= dp(465) else (0.97, None)
+                    height: dp(140)
+                    radius: dp(22)
+                    pos_hint: {'center_x': 0.5}
+                    id: card4
+
+                    MDBoxLayout:
+                        orientation: 'horizontal'
+                        padding: dp(8)
+                        spacing: dp(1)
+                        MDLabel:
+                            text: ". . ."
+                            font_style: "Title"
+                            role: "large"
+                            adaptive_width: True
+                            width: self.texture_size[0]
+                            id: tmr_four_date
+                        MDDivider:
+                            orientation: "vertical"
+                            height: dp(145)
+                            valign: "center"
+
+                        RecycleViewBoxThing:
+                            id: tmr_four_forecast
+
+
+                MDCard:
+                    style: "filled"
+                    size_hint: (0.9, None) if root.width >= dp(465) else (0.97, None)
+                    height: dp(140)
+                    radius: dp(22)
+                    id: card5
+                    pos_hint: {'center_x': 0.5}
+
+                    MDBoxLayout:
+                        orientation: 'horizontal'
+                        padding: dp(8)
+                        spacing: dp(1)
+                        MDLabel:
+                            text: ". . ."
+                            font_style: "Title"
+                            role: "large"
+                            adaptive_width: True
+                            width: self.texture_size[0]
+                            id: tmr_five_date
+                        MDDivider:
+                            orientation: "vertical"
+                            height: dp(145)
+                            valign: "center"
+
+                        RecycleViewBoxThing:
+                            id: tmr_five_forecast
+
+
+                MDCard:
+                    style: "filled"
+                    size_hint: (0.9, None) if root.width >= dp(465) else (0.97, None)
+                    height: dp(140)
+                    radius: dp(22)
+                    pos_hint: {'center_x': 0.5}
+                    id: card6
+
+                    MDBoxLayout:
+                        orientation: 'horizontal'
+                        padding: dp(8)
+                        spacing: dp(1)
+                        MDLabel:
+                            text: ". . ."
+                            font_style: "Title"
+                            role: "large"
+                            adaptive_width: True
+                            width: self.texture_size[0]
+                            id: tmr_six_date
+                        MDDivider:
+                            orientation: "vertical"
+                            height: dp(145)
+                            valign: "center"
+
+                        RecycleViewBoxThing:
+                            id: tmr_six_forecast
+
+# =============================================================================================
+# =============================================================================================
+
+<CurrentWeatherScreen@MDScreen>:
+    name: 'CurrentWeatherScreen'
+    md_bg_color: app.theme_cls.backgroundColor
+
+    MDFloatLayout:
+
+        FitImage:
+            source: "Graphics/sunny.png"
+            size_hint: 0.8, None
+            height: dp(415)
+            opacity: 0.3
+            pos_hint: {'center_x': 0.825,'center_y': 0.825}
+            allow_stretch: True
+            keep_ratio: True
+            id: background_image
+
+    MDScrollView:
+        do_scroll_x: False
+        do_scroll_y: True
+
+        #full screen layout
+        MDBoxLayout:
+            orientation: "vertical"
+            spacing: dp(25)
+            padding: dp(5)
+            height: self.minimum_height
+            size_hint_y: None
+
+            #Location text
+            MDBoxLayout:
+                orientation: "horizontal"
+                size_hint: None, None
+                height: self.minimum_height
+                adaptive_height: True
+                spacing: dp(20)
+                padding: dp(24), dp(20), dp(32), dp(1)
+                adaptive_width: True
+                width: self.minimum_width
+                # pos_hint: {'center_x': 0.1}
+                halign: "left"
+                valign: "top"
+
+                Label:
+                    text: "\ue55e"
+                    font_name: "Material-Icons"
+                    color: app.theme_cls.onSurfaceVariantColor
+                    font_size: dp(33.5)
+                    adaptive_size: True
+                    size: self.texture_size[0], self.texture_size[1]
+
+
+                MDLabel:
+                    text: "Earth probably idk"
+                    color: app.theme_cls.onSurfaceVariantColor
+                    font_style: "ubuntu_title"
+                    role: "large"
+                    adaptive_size: True
+                    size: self.texture_size[0], self.texture_size[1]
+                    id: location_text
+                    on_ref_press: app.open_city_search_menu()
+                    markup: True
+
+            # (new) rain text
+            MDBoxLayout:
+                orientation: "horizontal"
+                size_hint: None, None
+                height: self.minimum_height
+                adaptive_height: True
+                spacing: dp(20)
+                padding: dp(24), dp(-11), dp(32), dp(2)
+                adaptive_width: True
+                width: self.minimum_width
+                # pos_hint: {'center_x': 0.1}
+                halign: "left"
+                valign: "top"
+
+                Label:
+                    text: "\uf084"
+                    font_name: "Material-Icons"
+                    color: app.theme_cls.onSurfaceVariantColor
+                    font_size: dp(33.5)
+                    adaptive_size: True
+                    size: self.texture_size[0], self.texture_size[1]
+
+                MDLabel:
+                    text: "none mm"
+                    color: app.theme_cls.onSurfaceVariantColor
+                    font_style: "ubuntu_title"
+                    role: "large"
+                    adaptive_size: True
+                    size: self.texture_size[0], self.texture_size[1]
+                    id: current_rain_amount
+
+            #current icon and temperature
+            MDBoxLayout:
+                orientation: "horizontal"
+                size_hint: None, None
+                halign: "center"
+                adaptive_width: True
+                height: dp(270)
+                padding: dp(0), dp(0), dp(20), dp(55)
+                spacing: dp(65)
+                pos_hint: {'center_x': 0.55}
+
+                Label:
+                    font_name: "Material-Icons"
+                    text: "\ue430" #wb_sunny
+                    font_size: dp(100)
+                    color: app.theme_cls.onSurfaceVariantColor
+                    adaptive_width: True
+                    id: current_icon
+
+
+                MDLabel:
+                    text: "none"
+                    font_style: "ubuntu_title_bold"
+                    theme_font_size: "Custom"
+                    font_size: dp(80)
+                    markup: True
+                    color: app.theme_cls.onSurfaceVariantColor
+                    adaptive_width: True
+                    id: temp_current
+
+            #current stats
+            MDCard:
+                theme_bg_color: "Custom"
+                style: "filled"
+                size_hint: 0.9, None
+                height: dp(120)
+                radius: dp(52)
+                pos_hint: {'center_x': 0.5}
+                opacity: 0.72
+                md_bg_color: app.theme_cls.secondaryContainerColor
+
+                AnchorLayout:
+                    anchor_x: "center"
+                    anchor_y: "center"
+
+                    MDBoxLayout:
+                        adaptive_width: True
+                        height: dp(100)
+                        orientation: "horizontal"
+                        spacing: dp(24)
+                        padding: dp(20), dp(0)
+
+                        # --- Humidity ---
+                        MDGridLayout:
+                            cols: 2 if root.width > dp(465) else 1
+                            adaptive_size: True
+                            spacing: dp(14)
+                            pos_hint: {'center_y': 0.5}
+
+                            Label:
+                                font_name: "Material-Icons"
+                                text: "\ue798"
+                                font_size: dp(28)
+                                color: app.theme_cls.onSecondaryContainerColor
+                                pos_hint: {'center_y': 0.5}
+                                adaptive_size: True
+
+                            MDLabel:
+                                id: current_humidity
+                                text: "none"
+                                color: app.theme_cls.onSecondaryContainerColor
+                                font_style: "Display"
+                                role: "small"
+                                adaptive_size: True
+
+                        MDDivider:
+                            orientation: "vertical"
+                            size_hint: None, 0.6
+                            pos_hint: {'center_y': 0.5}
+
+                        # --- Cloud Cover ---
+                        MDGridLayout:
+                            cols: 2 if root.width > dp(465) else 1
+                            adaptive_size: True
+                            spacing: dp(14)
+                            pos_hint: {'center_y': 0.5}
+
+                            Label:
+                                font_name: "Material-Icons"
+                                text: "\ue42d"
+                                font_size: dp(28)
+                                color: app.theme_cls.onSecondaryContainerColor
+                                pos_hint: {'center_y': 0.5}
+                                adaptive_size: True
+
+                            MDLabel:
+                                id: current_cloud
+                                text: "none"
+                                color: app.theme_cls.onSecondaryContainerColor
+                                font_style: "Display"
+                                role: "small"
+                                adaptive_size: True
+
+                        MDDivider:
+                            orientation: "vertical"
+                            size_hint: None, 0.6
+                            pos_hint: {'center_y': 0.5}
+
+                        # --- Wind speed (maybe idk at this point) ---
+                        MDGridLayout:
+                            cols: 2 if root.width > dp(465) else 1
+                            adaptive_size: True
+                            spacing: dp(14)
+                            pos_hint: {'center_y': 0.5}
+
+                            Label:
+                                font_name: "Material-Icons"
+                                text: "\uec0c"
+                                font_size: dp(28)
+                                color: app.theme_cls.onSecondaryContainerColor
+                                pos_hint: {'center_y': 0.5}
+                                adaptive_size: True
+
+                            MDBoxLayout:
+                                orientation: "vertical"
+                                adaptive_size: True
+                                spacing: dp(1)
+                                pos_hint: {'center_y': 0.5}
+
+                                MDLabel:
+                                    id: current_wind_speed
+                                    text: "none"
+                                    color: app.theme_cls.onSecondaryContainerColor
+                                    font_style: "Display"
+                                    role: "small"
+                                    pos_hint: {'center_y': 0.5}
+                                    adaptive_size: True
+
+                                MDLabel:
+                                    text: "km/h"
+                                    color: app.theme_cls.onSecondaryContainerColor
+                                    font_style: "ubuntu_title"
+                                    role: "medium"
+                                    adaptive_size: True
+
+            MDCard:
+                style: "filled"
+                size_hint: 0.95, None
+                height: dp(140)
+                pos_hint: {"center_x": 0.5}
+                orientation: "vertical"
+                spacing: dp(1)
+                id: forecast_card
+
+				#small label
+				MDLabel:
+					padding: [dp(8), dp(0.35), dp(0.35), dp(8)]
+					text: "Hourly"
+					font_style: "ubuntu_title"
+					role: "medium"
+					adaptive_height: True
+					adaptive_width: True
+					halign: "left"
+
+                RecycleViewBoxThing:
+                    id: forecast_panel
+
+            MDBoxLayout:
+                orientation: "horizontal"
+                padding: dp(2)
+                spacing: dp(10)
+                size_hint_x: 0.95
+                adaptive_height: True
+                height: self.minimum_height
+                pos_hint: {'center_x': 0.5}
+
+                MDCard:
+                    style: "outlined"
+                    size_hint: 0.6, None
+                    height: dp(116)
+                    spacing: dp(1)
+                    radius: dp(26)
+
+                    MDBoxLayout:
+                        orientation: "vertical"
+                        padding: dp(4)
+                        spacing: dp(2)
+
+                        MDBoxLayout:
+                            orientation: "horizontal"
+                            padding: dp(4)
+                            spacing: dp(22)
+                            adaptive_width: True
+                            width: self.minimum_width
+                            halign: "center"
+                            pos_hint: {'center_x': 0.5}
+
+                            Label:
+                                font_name: "Material-Icons"
+                                text: "\ueb5a"
+                                font_size: dp(32)
+                                color: app.theme_cls.onSurfaceVariantColor
+                                pos_hint: {'center_x': 0.5,'center_y': 0.5}
+                                adaptive_size: True
+                                size: self.texture_size[0], self.texture_size[1]
+
+                            MDLabel:
+                                text: "time"
+                                adaptive_width: True
+                                font_style: "ubuntu_title"
+                                role: "large"
+                                width: self.texture_size[0]
+                                height: self.texture_size[1]
+                                color: app.theme_cls.onSurfaceVariantColor
+                                pos_hint: {'center_x': 0.5}
+                                id: current_time_of_thy_synchronization
+
+
+                        MDLabel:
+                            text: "date"
+                            adaptive_width: True
+                            font_style: "ubuntu_title"
+                            role: "large"
+                            width: self.texture_size[0]
+                            height: self.texture_size[1]
+                            color: app.theme_cls.onSurfaceVariantColor
+                            pos_hint: {'center_x': 0.5}
+                            id: current_date_time_of_thy_period_of_utlisation_in_thy_current_gregorian_calendar_year_such_as_but_only_for_example_two_thousand_and_twenty_five
+    
+    AnchorLayout:
+        anchor_y: 'bottom'
+        size_hint: 1, 1
+        pos_hint: {'x': 0, 'y':0}
+
+        Image:
+            source: 'Graphics/bottom_fade.png'
+            size_hint: 1, None
+            height: dp(118)
+            allow_stretch: True
+            keep_ratio: False                        
+
+
+                    
+RootElement:
